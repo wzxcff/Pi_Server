@@ -23,28 +23,39 @@ def is_connected():
 
 def run_logic():
     if is_connected():
-        print(f"[{time.strftime('%H:%M:%S')}] Connection ALIVE.")
         return
 
-    print(f"[{time.strftime('%H:%M:%S')}] No connection. Reconnecting...")
+    print(f"[{time.strftime('%H:%M:%S')}] Connection LOST. Starting auth...")
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            context = browser.new_context(
-                user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-            )
-            page = context.new_page()
+            page = browser.new_page()
 
             page.goto("http://neverssl.com", timeout=60000)
+            page.wait_for_load_state("networkidle")
+            print(f"Current URL: {page.url}")
 
+            page.wait_for_selector("#btn2", timeout=15000)
             page.click("#btn2")
-            page.wait_for_timeout(2000)
-            page.check("#policy_9")
+            print("Clicked #btn2 (Free Wifi)")
+
+            print("Waiting for checkbox #policy_9...")
+            try:
+                page.wait_for_selector("#policy_9", timeout=20000, state="visible")
+                page.check("#policy_9")
+                print("Checkbox set!")
+            except Exception as e:
+                page.screenshot(path="error_debug.png")
+                print("Element not found, saving screenshot as error_debug.png")
+                raise e
+
+            page.wait_for_selector("#submit_login", timeout=10000)
             page.click("#submit_login")
 
             time.sleep(5)
             browser.close()
-            print(f"[{time.strftime('%H:%M:%S')}] Auth attempt completed!")
+            print(f"[{time.strftime('%H:%M:%S')}] Auth completed!")
+
     except Exception as e:
         print(f"[{time.strftime('%H:%M:%S')}] Error occurred: {e}")
 
