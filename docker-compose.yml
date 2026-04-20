@@ -1,0 +1,10 @@
+
+
+services:
+  wifi-login:
+    build:
+      context: ./Wifi_AutoLogin
+    container_name: wifi-auto-login
+    restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
