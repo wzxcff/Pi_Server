@@ -1,13 +1,62 @@
 
 
 services:
+  dns:
+    image: lancachenet/lancache-dns:latest
+    container_name: lancache-dns
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    depends_on:
+      wifi-login:
+        condition: service_healthy
+
+  monolithic:
+    image: lancachenet/monolithic:latest
+    container_name: lancache-monolithic
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    volumes:
+      - ./data:/data/cache
+      - ./logs:/data/logs
+
+  steam-prefill:
+    image: tpill90/steam-prefill:latest
+    container_name: steam-prefill
+    volumes:
+      - ./prefill-config:/app/Config
+    dns:
+      - 10.5.19.126
+    command: prefill --all
+    restart: "no"
+    depends_on:
+      wifi-login:
+        condition: service_healthy
+
   wifi-login:
     build:
       context: ./Wifi_AutoLogin
     container_name: wifi-auto-login
     restart: always
+    network_mode: host
     environment:
       - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://www.google.com"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   portainer:
     image: portainer/portainer-ce:latest
