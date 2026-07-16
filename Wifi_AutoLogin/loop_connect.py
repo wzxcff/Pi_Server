@@ -65,5 +65,5 @@ if __name__ == "__main__":
     run_logic()
 
     while True:
-        time.sleep(300)
+        time.sleep(60)
         run_logic()

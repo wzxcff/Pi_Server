@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 COPY .. .
 
-CMD ["python", "loop_connect.py"]
+CMD ["python", "watchdog.py"]
