@@ -1,0 +1,37 @@
+use_default_settings: true
+
+server:
+  secret_key: "my_super_secret_key_123"
+  limiter: false                           # Отключает лимит запросов
+
+search:
+  safe_search: 0
+  autocomplete: 'google'
+  formats:
+    - json                                # На первом месте
+    - html
+
+outgoing:
+  request_timeout: 10
+  max_request_timeout: 15
+  # Притворяемся обычным браузером Chrome:
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+
+enabled_plugins:
+  - 'Hash plugin'
+
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: false
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    disabled: false
