@@ -12,6 +12,8 @@ services:
       - 8.8.8.8
     environment:
       - PYTHONUNBUFFERED=1
+    volumes:
+      - ./Wifi_AutoLogin:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://www.google.com"]
       interval: 1m
@@ -46,7 +48,7 @@ services:
     volumes:
       - open_webui_data:/app/backend/data
     environment:
-      - OLLAMA_BASE_URL=http://172.17.0.1:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
       - WEBUI_AUTH=true
     networks:
       - ai_network
@@ -70,11 +72,13 @@ services:
     container_name: searxng
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8888:8080"
     volumes:
       - ./settings.yml:/etc/searxng/settings.yml:ro
     environment:
-      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_BASE_URL=http://localhost:8888/
+    networks:
+      - ai_network
 
   browserless:
     image: ghcr.io/browserless/chromium:latest
@@ -86,13 +90,21 @@ services:
       - CONCURRENT_SESSIONS=3
       - TIMEOUT=10000
     restart: unless-stopped
+    networks:
+      - ai_network
 
-  akane-bot:
-    build: .
-    container_name: akane_discord_bot
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
     restart: unless-stopped
-    env_file:
-      - .env
+    ports:
+      - "8096:8096"
+    volumes:
+      - ./jellyfin_config:/config
+      - ./jellyfin_cache:/cache
+      - ./game_clips:/media/game_clips
+    networks:
+      - ai_network
 
 networks:
   ai_network:
