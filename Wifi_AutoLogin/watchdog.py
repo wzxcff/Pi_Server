@@ -54,12 +54,12 @@ def do_login():
 
             page = browser.new_page()
 
-            page.goto("http://neverssl.com", timeout=10000, wait_until="load")
+            page.goto("http://10.5.0.1", timeout=40000, wait_until="load")
 
             print(f"Current URL: {page.url}")
-            time.sleep(2)
+            time.sleep(10)
 
-            page.click("#btn2", timeout=15000)
+            page.click("#btn2", timeout=25000)
             print("Clicked login button")
 
 
